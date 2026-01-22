@@ -11,7 +11,7 @@ namespace EasePassFTPDatabaseSourcePlugin
     {
         private FTPConfig config;
 
-        public string DatabaseName => config.GetFilenameWithoutExt();
+        public string DatabaseName => config.GetFilenameWithoutExt() + " (" + config.Mode.ToString() + ")";
 
         public string SourceDescription => config.GetUriString();
 

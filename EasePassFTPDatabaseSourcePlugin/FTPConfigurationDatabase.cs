@@ -38,7 +38,7 @@ namespace EasePassFTPDatabaseSourcePlugin
         {
             string p = GetFilePath();
             if (File.Exists(p))
-                return File.ReadAllText(p);
+                return Obfuscator.Decrypt(File.ReadAllText(p));
             return "[]";
         }
 
@@ -46,7 +46,7 @@ namespace EasePassFTPDatabaseSourcePlugin
         {
             try
             {
-                File.WriteAllText(GetFilePath(), configJson);
+                File.WriteAllText(GetFilePath(), Obfuscator.Encrypt(configJson));
                 return true;
             }
             catch
