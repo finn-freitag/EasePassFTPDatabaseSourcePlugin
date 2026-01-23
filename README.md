@@ -1,5 +1,7 @@
 # FTP/FTPS/SFTP Remote Database for Ease Pass
 
+This is a plugin for [Ease Pass](https://github.com/FrozenAssassine/EasePass).
+
 ## Installation
 This plugin could be installed in the latest version of Ease Pass using the plugin store in the settings.
 
