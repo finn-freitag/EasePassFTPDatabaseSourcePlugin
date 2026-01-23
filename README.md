@@ -14,7 +14,7 @@ Now the remote database plugin should appear in the "Remote Database Settings" s
 ```json
 [
 	{
-		"Host": "123.123.2.123",
+		"Host": "sftp.example.com",
 		"Port": 22,
 		"Username": "your_ftp_username",
 		"Password": "your_ftp_password",
