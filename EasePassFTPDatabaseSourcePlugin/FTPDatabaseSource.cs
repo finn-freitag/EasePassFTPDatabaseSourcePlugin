@@ -15,6 +15,8 @@ namespace EasePassFTPDatabaseSourcePlugin
 
         public string SourceDescription => config.GetUriString();
 
+        public bool isReadonly => false;
+
         internal FTPDatabaseSource(FTPConfig config)
         {
             this.config = config;

@@ -34,36 +34,56 @@ namespace EasePassFTPDatabaseSourcePlugin
             }
         }
 
+        public static bool HasConfigurationJSON()
+        {
+            if (ConfigurationStorage.Instance == null)
+                return false;
+            string config = ConfigurationStorage.Instance.LoadString("config");
+            if (string.IsNullOrEmpty(config))
+                return false;
+            return true;
+        }
+
         public static string GetConfigurationJSON()
         {
-            string p = GetFilePath();
-            if (File.Exists(p))
-                return Obfuscator.Decrypt(File.ReadAllText(p));
-            return "[]";
+            string config = ConfigurationStorage.Instance.LoadString("config");
+            if (string.IsNullOrEmpty(config))
+                return "[]";
+            return Obfuscator.Decrypt(config);
         }
 
         public static bool SetConfigurationJSON(string configJson)
         {
+            ConfigurationStorage.Instance.SaveString("config", Obfuscator.Encrypt(configJson));
+            return true;
+        }
+
+        public static bool ValidateConfigurationJSON(string configJson)
+        {
             try
             {
-                File.WriteAllText(GetFilePath(), Obfuscator.Encrypt(configJson));
+                var configs = JsonSerializer.Deserialize<FTPConfig[]>(configJson, options);
+                if (configs == null || configs.Length == 0)
+                    return false;
+                foreach (var config in configs)
+                {
+                    if (string.IsNullOrWhiteSpace(config.Host) ||
+                        string.IsNullOrWhiteSpace(config.Username) ||
+                        string.IsNullOrWhiteSpace(config.Password) ||
+                        string.IsNullOrWhiteSpace(config.RemotePath) ||
+                        config.Host == "ftp.example.com" ||
+                        config.Password == "your_password" ||
+                        config.Port <= 0)
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
             catch
             {
                 return false;
             }
-        }
-
-        private static string GetFilePath()
-        {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string pluginFolder = Path.Combine(appData, "EasePass", "Plugins", "EasePassFTPRemoteDatabasePlugin");
-            if (!Directory.Exists(pluginFolder))
-            {
-                Directory.CreateDirectory(pluginFolder);
-            }
-            return Path.Combine(pluginFolder, "ftp_configurations.json");
         }
     }
 }
