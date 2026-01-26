@@ -15,29 +15,37 @@ namespace EasePassFTPDatabaseSourcePlugin
 
         public string SourceDescription => config.GetUriString();
 
-        public bool isReadonly => false;
+        public bool IsReadOnly => false;
+
+        public IDatabaseSource.DatabaseAvailability Availability
+        {
+            get
+            {
+                // unable to handle login sessions
+                return IDatabaseSource.DatabaseAvailability.Available;
+            }
+        }
+
+        public DateTime LastTimeModified
+        {
+            get
+            {
+                return DateTime.MinValue;
+            }
+        }
+
+        public Action OnPropertyChanged { get; set; }
 
         internal FTPDatabaseSource(FTPConfig config)
         {
             this.config = config;
         }
 
-        public IDatabaseSource.DatabaseAvailability GetAvailability()
-        {
-            // unable to handle login sessions
-            return IDatabaseSource.DatabaseAvailability.Available;
-        }
-
-        public DateTime GetLastTimeModified()
-        {
-            return DateTime.MinValue;
-        }
-
         public void Login() { /* unable to handle login sessions */ }
 
         public void Logout() { /* unable to handle login sessions */ }
 
-        public byte[] GetDatabaseFileBytes()
+        public Task<byte[]> GetDatabaseFileBytes()
         {
             if(config.Mode == FTPConfig.FTPMode.SFTP)
             {
@@ -47,7 +55,7 @@ namespace EasePassFTPDatabaseSourcePlugin
                 client.DownloadFile(config.RemotePath, ms);
                 client.Disconnect();
                 client.Dispose();
-                return ms.ToArray();
+                return Task.FromResult(ms.ToArray());
             }
             else
             {
@@ -59,13 +67,13 @@ namespace EasePassFTPDatabaseSourcePlugin
                 client.Disconnect();
                 client.Dispose();
                 if (res)
-                    return outBytes;
+                    return Task.FromResult(outBytes);
                 else
-                    return Array.Empty<byte>();
+                    return Task.FromResult(Array.Empty<byte>());
             }
         }
 
-        public bool SaveDatabaseFileBytes(byte[] databaseFileBytes)
+        public Task<bool> SaveDatabaseFileBytes(byte[] databaseFileBytes)
         {
             if (config.Mode == FTPConfig.FTPMode.SFTP)
             {
@@ -75,7 +83,7 @@ namespace EasePassFTPDatabaseSourcePlugin
                 client.UploadFile(ms, config.RemotePath);
                 client.Disconnect();
                 client.Dispose();
-                return true;
+                return Task.FromResult(true);
             }
             else
             {
@@ -84,7 +92,7 @@ namespace EasePassFTPDatabaseSourcePlugin
                 var res = client.UploadBytes(databaseFileBytes, config.RemotePath);
                 client.Disconnect();
                 client.Dispose();
-                return res == FtpStatus.Success;
+                return Task.FromResult(res == FtpStatus.Success);
             }
         }
     }
